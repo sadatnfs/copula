@@ -28,8 +28,26 @@ A much smaller scaled version of this has been used and published by IHME last y
 ## Progress:
 
 1)	Getting comfy with the function by using example draws right now. 
-2)	Creating a prepping data function to take get_draws and prep for the copulating function. 
+2)	Creating a prepping data function to take get_draws and prep for the copulating function.
+
 3)	Unit tests. 
-4)	Stacking of dimensions. Most challenging. 
+4)	Stacking of dimensions. Most challenging. (7 modified business days) 
 5)	Supplying correlation matrix. Build in a default AR(1) matrix if correlation not supplied. 
 6)	Porting to different language. 
+
+
+## Timeline:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
