@@ -1,6 +1,6 @@
 # Correlation in GBD coding challenge
 
-Input: GBD outputs from CODEm, DisMod, or even just get_draws
+Input: GBD outputs from CODEm (fatal), DisMod (non-fatal), or even just get_draws
 
 Output: Same exact columns as inputs, but jointly correlated
 
@@ -17,8 +17,19 @@ A much smaller scaled version of this has been used and published by IHME last y
 -	large number of rows (scalibility and tractability computationally)
 -   high dimensionality in categories (specifiying and being able to choose correlation across ages/sexes/causes)
 -	keeping a dimension unchanged (induce correlation across ages and sexes, but keep the temporal correlation untouched)
+-- (wrapper function around the already existing one, which will collapse non-sorts into a single dim, and to-sorts into another)
+
 -	coming up with a prior correlation matrix
+-- (an option: using older GBD results to be passed)
+
 -	the impossible combinations (if we are dealing with four marginal distributions, and we have two pairs with perfect correlation, then it's impossible to ... )
 
 
-## Tasks:
+## Progress:
+
+1)	Getting comfy with the function by using example draws right now. 
+2)	Creating a prepping data function to take get_draws and prep for the copulating function. 
+3)	Unit tests. 
+4)	Stacking of dimensions. Most challenging. 
+5)	Supplying correlation matrix. Build in a default AR(1) matrix if correlation not supplied. 
+6)	Porting to different language. 
