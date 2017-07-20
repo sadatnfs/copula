@@ -18,3 +18,7 @@ A much smaller scaled version of this has been used and published by IHME last y
 -   high dimensionality in categories (specifiying and being able to choose correlation across ages/sexes/causes)
 -	keeping a dimension unchanged (induce correlation across ages and sexes, but keep the temporal correlation untouched)
 -	coming up with a prior correlation matrix
+-	the impossible combinations (if we are dealing with four marginal distributions, and we have two pairs with perfect correlation, then it's impossible to ... )
+
+
+## Tasks:
