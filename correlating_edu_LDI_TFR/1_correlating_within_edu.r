@@ -71,7 +71,6 @@ load("/home/j/WORK/01_covariates/02_inputs/education/update_2017/data/tabulated_
 ## For now, trim the corr matrix to have 14 age groups
 corr_mat <- corr_mat[1:28,1:28]
 
-head(edu_pes_long)
 
 ## Convert them all to multidim array in the dims: [loc, year, age_sex, draw_num, data]
 
@@ -132,30 +131,38 @@ edu_ref_corr_df <- do.call(rbind, edu_ref_corr_array)
                                         
 colnames(edu_ref_corr_df) <- c("location_id", "year_id", "age_sex", "draw_num", "edu")
 head(edu_ref_corr_df)    
+rm(edu_ref_array);
 
 
 system.time(edu_pes_corr_array <- mclapply(countries, 
                                     function(x) {cbind(x, draw2Dcopula(edu_pes_array[paste0(x),,,],
                                                                       corr_mat , df_return = T))}, mc.cores = 15, mc.preschedule = F))
-                                        
+length(edu_pes_corr_array)                                        
 edu_pes_corr_df <- do.call(rbind, edu_pes_corr_array)
                                         
 colnames(edu_pes_corr_df) <- c("location_id", "year_id", "age_sex", "draw_num", "edu")
 head(edu_pes_corr_df)    
 
+rm(edu_pes_array);
 
 
 system.time(edu_opt_corr_array <- mclapply(countries, 
                                     function(x) {cbind(x, draw2Dcopula(edu_opt_array[paste0(x),,,],
                                                                       corr_mat , df_return = T))}, mc.cores = 15, mc.preschedule = F))
-                                        
+length(edu_opt_corr_array)                                        
 edu_opt_corr_df <- do.call(rbind, edu_opt_corr_array)
                                         
 colnames(edu_opt_corr_df) <- c("location_id", "year_id", "age_sex", "draw_num", "edu")
 head(edu_opt_corr_df)
 
+rm(edu_opt_array);  
+
+
+
 dim(edu_ref_long); dim(edu_opt_corr_df); dim(edu_pes_corr_df); dim(edu_ref_corr_df)
 
+
+## 
 country_year_collapser <- function(edu_data, pop_data = pop, split_AS = T, dcast_needed=T) {
     
     if(dcast_needed) {
