@@ -306,3 +306,13 @@ fwrite(pessimistic_save, paste0(
 fwrite(optimistic_save, paste0(
        "/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/correlated_CY_edu/",
           "20170608_GBD2016Final_gpr_draws_cohort_scenarios1_CY.csv"))
+
+#### Save out uncorr stats
+fwrite(edu_ref_uncorr_CY[["stats"]], paste0("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/uncorrelated_CY_edu/",
+          "20170608_GBD2016Final_gpr_draws_cohort_scenarios0_CY.csv"))
+
+fwrite(edu_pes_uncorr_CY[["stats"]], paste0( "/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/uncorrelated_CY_edu/",
+          "20170608_GBD2016Final_gpr_draws_cohort_scenarios-1_CY.csv"))
+
+fwrite(edu_opt_uncorr_CY[["stats"]], paste0("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/uncorrelated_CY_edu/",
+          "20170608_GBD2016Final_gpr_draws_cohort_scenarios1_CY.csv"))
