@@ -1,6 +1,7 @@
 
 rm(list=ls())
-pacman::p_load(data.table, MASS, ggplot2, stringr, matrixStats, doParallel, abind, ncdf4)
+.libPaths("/homes/sadatnfs/R/x86_64-unknown-linux-gnu-library/3.4/")
+pacman::p_load(data.table, MASS, ggplot2, stringr, matrixStats, doParallel, abind)
 
 parallel::detectCores()
 ## Resizing notebook plot space
@@ -127,7 +128,7 @@ system.time(edu_ref_corr_array <- mclapply(countries,
                                     function(x) {cbind(x, draw2Dcopula(edu_ref_array[paste0(x),,,],
                                                                       corr_mat , df_return = T))}, mc.cores = 15, mc.preschedule = F ))
 length(edu_ref_corr_array)                                        
-edu_ref_corr_df <- do.call(rbind, edu_ref_corr_array)
+edu_ref_corr_df <- rbindlist(edu_ref_corr_array); rm(edu_ref_corr_array)
                                         
 colnames(edu_ref_corr_df) <- c("location_id", "year_id", "age_sex", "draw_num", "edu")
 head(edu_ref_corr_df)    
@@ -138,7 +139,7 @@ system.time(edu_pes_corr_array <- mclapply(countries,
                                     function(x) {cbind(x, draw2Dcopula(edu_pes_array[paste0(x),,,],
                                                                       corr_mat , df_return = T))}, mc.cores = 15, mc.preschedule = F))
 length(edu_pes_corr_array)                                        
-edu_pes_corr_df <- do.call(rbind, edu_pes_corr_array)
+edu_pes_corr_df <- rbindlist(edu_pes_corr_array); rm(edu_pes_corr_array)
                                         
 colnames(edu_pes_corr_df) <- c("location_id", "year_id", "age_sex", "draw_num", "edu")
 head(edu_pes_corr_df)    
@@ -150,7 +151,7 @@ system.time(edu_opt_corr_array <- mclapply(countries,
                                     function(x) {cbind(x, draw2Dcopula(edu_opt_array[paste0(x),,,],
                                                                       corr_mat , df_return = T))}, mc.cores = 15, mc.preschedule = F))
 length(edu_opt_corr_array)                                        
-edu_opt_corr_df <- do.call(rbind, edu_opt_corr_array)
+edu_opt_corr_df <- rbindlist(edu_opt_corr_array); rm(edu_opt_corr_array)
                                         
 colnames(edu_opt_corr_df) <- c("location_id", "year_id", "age_sex", "draw_num", "edu")
 head(edu_opt_corr_df)
