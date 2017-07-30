@@ -39,11 +39,15 @@ Users inputs:
 (c) Correlation stuff: 
 Users inputting the proper dimensional vector and matrix. If missing, warning and use default.
 
-Tasks:
-Maddie: correlation stuff
-David: visualizing the outputs from copula function
-Nafis: input data.table to array; parsing out the original columns after copula (use unique concatenating apriori so that de-parsing is easier:: paste collapse with __)
-Helena: ugh documentation. Sorry.
+Tasks: 
+Maddie: correlation stuff  
+David: visualizing the outputs from copula function  
+Nafis: input data.table to array; parsing out the original columns after copula (use unique concatenating apriori so that de-parsing is easier:: paste collapse with __)  
+Helena: ugh documentation. Sorry. 
+
+
+Update: added a unstacking function in the notebook to de-parse the vars 
+
 
 
 
