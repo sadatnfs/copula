@@ -13,7 +13,7 @@ parallel::detectCores()
 ## Resizing notebook plot space
 options(repr.plot.width=16, repr.plot.height=9)
 
-## POP DATA from UN
+print("## POP DATA from UN")
 # pop <- data.table(fread("/home/j/Project/IRH/Forecasting/data/WPP_forecasted_population.csv"))
 pop <- fread('/ihme/forecasting/data/pop/20150101_wpp/data.csv')
 pop <- pop[, age_group_id:=15+5*(age_group_id -8)] 
@@ -36,7 +36,7 @@ data_cleanup_1 <- function(dt) {
 ## Merge pop age-sex var
 pop_joined <- data_cleanup_1(pop)
 
-## Bring in edu from Pat!
+print("## Bring in edu from Pat!")
 
 system.time(edu_pes <- fread("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/20170726_cohort_maternal_scenarios-1.csv"))
 system.time(edu_ref <- fread("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/20170726_cohort_maternal_scenarios0.csv"))
@@ -60,7 +60,7 @@ edu_pes <- data_cleanup_1(edu_pes)
 edu_opt <- data_cleanup_1(edu_opt)
 Sys.time()
 
-# Make draws long 
+print("# Make draws long ")
 system.time(edu_ref_long <- melt(edu_ref, id.vars = c("location_id", "age_sex", "year_id"), value.name = "edu", varnames = "draw"))
 system.time(edu_opt_long <- melt(edu_opt, id.vars = c("location_id", "age_sex", "year_id"), value.name = "edu", varnames = "draw"))
 system.time(edu_pes_long <- melt(edu_pes, id.vars = c("location_id", "age_sex", "year_id"), value.name = "edu", varnames = "draw"))
@@ -80,7 +80,7 @@ load("/home/j/WORK/01_covariates/02_inputs/education/update_2017/data/tabulated_
 corr_mat <- corr_mat[1:28,1:28]
 
 
-## Convert them all to multidim array in the dims: [loc, year, age_sex, draw_num, data]
+print("## Convert them all to multidim array in the dims: [loc, year, age_sex, draw_num, data]")
 
 ## Reference
 system.time(edu_ref_array<- mclapply(countries, 
@@ -129,6 +129,9 @@ draw2Dcopula <- function(X, cor_mat, df_return = F){
   }
 }
 
+
+print("## Use copula algorithm on each of the age-sex specific scenario draws")
+
 system.time(edu_ref_corr_array <- mclapply(countries, 
                                            function(x) {cbind(x, draw2Dcopula(edu_ref_array[paste0(x),,,],
                                                                               corr_mat , df_return = T))}, mc.cores = 15, mc.preschedule = F ))
@@ -168,7 +171,7 @@ rm(edu_opt_array);
 dim(edu_ref_long); dim(edu_opt_corr_df); dim(edu_pes_corr_df); dim(edu_ref_corr_df)
 
 
-## 
+print("## Here's a function to collapse age-sex into country-year population weighted data")
 country_year_collapser <- function(edu_data, pop_data = pop, split_AS = T, dcast_needed=T) {
   
   if(dcast_needed) {
@@ -228,12 +231,12 @@ country_year_collapser <- function(edu_data, pop_data = pop, split_AS = T, dcast
 }
 
 
-## Collapse the three scenarios
+print("## Collapse the three scenarios")
 system.time(edu_ref_corr_CY <- country_year_collapser(edu_data = edu_ref_corr_df, pop_joined, split_AS = F,dcast_needed = F))
 system.time(edu_opt_corr_CY <- country_year_collapser(edu_data = edu_opt_corr_df, pop_joined, split_AS = F,dcast_needed = F))
 system.time(edu_pes_corr_CY <- country_year_collapser(edu_data = edu_pes_corr_df, pop_joined, split_AS = F,dcast_needed = F))
 
-## Collapse the un-correlated data
+print("## Collapse the un-correlated data")
 try(edu_ref_long[, draw_num:= variable])
 try(edu_ref_long[, variable:= NULL])
 system.time(edu_ref_uncorr_CY <-country_year_collapser(edu_data = edu_ref_long, pop_joined, split_AS=F, dcast_needed=F))
@@ -294,7 +297,7 @@ pessimistic_save[, scenario:= -1]
 optimistic_save <- merge(edu_opt_corr_CY[["draws"]], edu_opt_corr_CY[["stats"]], by = c("location_id", "year_id"))
 optimistic_save[, scenario:= 1]
 
-## Save out data
+print("## Save out correlated data")
 
 
 ## Reference
@@ -312,7 +315,7 @@ fwrite(optimistic_save, paste0(
   "/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/correlated_CY_edu/",
   "20170731_cohort_maternal_scenarios1_CY.csv"))
 
-# #### Save out uncorr stats
+print("# #### Save out uncorr stats")
 fwrite(edu_ref_uncorr_CY[["stats"]], paste0("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/uncorrelated_CY_edu/",
                                             "20170731_cohort_maternal_scenarios0_CY.csv"))
 
