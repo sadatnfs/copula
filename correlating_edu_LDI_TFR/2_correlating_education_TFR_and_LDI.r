@@ -48,7 +48,10 @@
         edu_pes <- fread("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/correlated_CY_edu/20170731_cohort_maternal_scenarios-1_CY.csv")
         edu_opt <- fread("/ihme/forecasting/data/fbd_scenarios_data/forecast/covariate/education/20170608_GBD2016Final/correlated_CY_edu/20170731_cohort_maternal_scenarios1_CY.csv")
 
-
+        ## Fix edu data (draw_0 -> draw_1000)
+        edu_ref <- edu_ref[draw_num == "draw_0", draw_num := "draw_1000"]
+        edu_opt <- edu_opt[draw_num == "draw_0", draw_num := "draw_1000"]
+        edu_pes <- edu_pes[draw_num == "draw_0", draw_num := "draw_1000"]
   
     ### Get the baseline correlation matrix
         ldi_insample <- ldi_ref[year_id <= 2015, .(location_id, year_id, mean.ldi = rt_mean)]
@@ -163,38 +166,53 @@
       system.time(opt_array <- make_array_1(ldi_opt_fc, edu_opt_fc, tfr_opt_fc))
 
 
+      ### Extra helper: 
+       ### Return a list where each item is a covariate, and cast wide on draws
+         wide_caster <- function(data, var) {
+           tmp <- data[variable == paste0(var), list(location_id, year_id, draw_num, data)]
+           tmp <- dcast(tmp, location_id + year_id ~ draw_num, value.var = "data")
+           colnames(tmp) <- c("location_id", "year_id", paste0("draw", c(0:999)))
+           return(tmp)
+         }
+
+
+    #### Run the copula function!
+
+      copula_array <- function(array_input, scen) {
+         
+        ### Copulate by countries
+         system.time(corrd_list <- mclapply(countries, 
+                                    function(x) cbind(x, draw2Dcopula(array_input[paste0(x),,,], corr_mat , df_return = T)),
+                                    mc.cores = 25 ))         
+
+        ### Stack the list
+         stacked_list <- rbindlist(corrd_list)
+         colnames(stacked_list) <- c("location_id", "year_id", "variable", "draw_num", "data")
+
+         print(head(stacked_list))
+                
+         ## Make the list
+         cov_list <- mclapply(c("LDIpc", "EDU", "TFR"), function(v)  { wide_caster(stacked_list, paste0(v))[, scenario:= scen] }, mc.cores = 16 )
+         names(cov_list) <- c("LDIpc", "EDU", "TFR")
+
+         return(cov_list)
+  
+      }
+
+
+      ## Run it!
+      system.time(corr_ref_data <- copula_array(ref_array, 0))
+      system.time(corr_pes_data <- copula_array(pes_array, -1))
+      system.time(corr_opt_data <- copula_array(opt_array, 1))
 
 
 
-
-    all_data_binded <- rbind(ldi_fc, edu_fc, tfr_fc)
-
-    system.time(myarray2<- lapply(countries, 
-                                    function(x) reshape2::acast(all_data_binded[location_id == x,], 
-                                                          location_id ~  year_id ~ variable ~ draw_num, 
-                                                          value.var = "data")))
-    myarray2 <- abind(myarray2, along=1)
-    str(myarray2)
-
-    system.time(Xcorr_array <- lapply(countries , 
-                                         function(x) cbind(x, draw2Dcopula(myarray2[paste0(x),,,], corr_mat , df_return = T)) ))
-                                            
-    test2 <- list.stack(Xcorr_array, data.table=T)
-    colnames(test2) <- c("location_id", "year_id", "variable", "draw_num", "data")
-    tail(test2)                  
-
-    ### Stack into a DT
-    test3 <- dcast(test2, location_id + year_id + variable ~ draw_num, value.var = c("data"))
-    head(test3)
-
-    LDI_sorted <- test3[variable=="LDIpc", .SD, .SDcols = c("location_id", "year_id", paste0("draw_", c(1:1000)))]
-    colnames(LDI_sorted) <- c("location_id", "year_id", paste0("LDIpc_", c(1:1000)))
-    EDU_sorted <- test3[variable=="EDU", .SD, .SDcols = c("location_id", "year_id", paste0("draw_", c(1:1000)))]
-    colnames(EDU_sorted) <- c("location_id", "year_id", paste0("draw", c(0:999)))
-    TFR_sorted <- test3[variable=="TFR", .SD, .SDcols = c("location_id", "year_id", paste0("draw_", c(1:1000)))]
-    colnames(TFR_sorted) <- c("location_id", "year_id", paste0("draw", c(0:999)))
+    ### Stack each variable
+    LDI_sorted <- rbindlist(list(corr_ref_data[["LDIpc"]], corr_pes_data[["LDIpc"]], corr_opt_data[["LDIpc"]]))
+    EDU_sorted <- rbindlist(list(corr_ref_data[["EDU"]], corr_pes_data[["EDU"]], corr_opt_data[["EDU"]]))
+    TFR_sorted <- rbindlist(list(corr_ref_data[["TFR"]], corr_pes_data[["TFR"]], corr_opt_data[["TFR"]]))
 
     ## Save out
-    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170501.csv")
-    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170501.csv")
-    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170501.csv")
+    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170805.csv")
+    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170805.csv")
+    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170805.csv")
