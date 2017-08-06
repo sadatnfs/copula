@@ -7,7 +7,7 @@ require(Matrix)
 
 source("./helper_functions.R")
 
-<<<<<<< HEAD
+
 ## Note: the datasets MUST be combined and melted first! The combined part more important 
 
 ## So far our function is only dealing with a single dataset, and that just might be easier: 
