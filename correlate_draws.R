@@ -7,6 +7,7 @@ require(Matrix)
 
 source("./helper_functions.R")
 
+<<<<<<< HEAD
 ## Note: the datasets MUST be combined and melted first! The combined part more important 
 
 ## So far our function is only dealing with a single dataset, and that just might be easier: 
@@ -22,8 +23,8 @@ source("./helper_functions.R")
 ## fourth variable: the actual data
 
 
-correlate_draws <- function(draw_data, draw_names, corr_vector=NA,
-                            corr_matrix=NA, corr_vars=NA, other_vars=NA, return_wide=F) {
+correlate_draws <- function(draw_data, draw_names, corr_vector=c(),
+                            corr_matrix=matrix(), corr_vars=c(), other_vars=c(), return_wide=F) {
 
 	## Run checks
     check_input_format(draw_data, corr_vars, corr_vector, corr_matrix)
