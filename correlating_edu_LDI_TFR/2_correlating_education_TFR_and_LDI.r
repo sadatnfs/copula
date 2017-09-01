@@ -177,7 +177,6 @@
 
 
     #### Run the copula function!
-
       copula_array <- function(array_input, scen) {
          
         ### Copulate by countries
@@ -189,7 +188,7 @@
          stacked_list <- rbindlist(corrd_list)
          colnames(stacked_list) <- c("location_id", "year_id", "variable", "draw_num", "data")
 
-         print(head(stacked_list))
+         # print(head(stacked_list))
                 
          ## Make the list
          cov_list <- mclapply(c("LDIpc", "EDU", "TFR"), function(v)  { wide_caster(stacked_list, paste0(v))[, scenario:= scen] }, mc.cores = 16 )
@@ -213,6 +212,6 @@
     TFR_sorted <- rbindlist(list(corr_ref_data[["TFR"]], corr_pes_data[["TFR"]], corr_opt_data[["TFR"]]))
 
     ## Save out
-    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170805.csv")
-    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170805.csv")
-    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170805.csv")
+    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170831.csv")
+    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170831.csv")
+    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170831.csv")
