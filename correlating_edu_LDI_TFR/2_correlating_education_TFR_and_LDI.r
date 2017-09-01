@@ -56,7 +56,7 @@
     ### Get the baseline correlation matrix
         ldi_insample <- ldi_ref[year_id <= 2015, .(location_id, year_id, mean.ldi = rt_mean)]
         tfr_insample <- tfr_ref[year_id <= 2015, .(location_id, year_id, mean.tfr = draw_1)]
-        edu_insample <- edu_ref[year_id <= 2015 & draw_num== "draw_0", .(location_id, year_id, mean.edu = mean)]
+        edu_insample <- edu_ref[year_id <= 2015 & draw_num== "draw_1", .(location_id, year_id, mean.edu = mean)]
 
         ## Merge together
         insample_data_merged <- merge(x=ldi_insample, y=edu_insample, by=c("location_id", "year_id" ))
