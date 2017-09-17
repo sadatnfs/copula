@@ -59,18 +59,53 @@ check_input_format <- function(data, corr_vars, corr_vector, corr_matrix,
     }
 }
 
-
-get_corr_matrix <- function(corr_vector, corr_matrix) {
-    print("TODO: write this function")
+_default_corr_vector <- function(corr_vars, corr_value=0.8) {
+    corr_vector <- rep(corr_value, length(corr_vars))
+    names(corr_vector) <- corr_vars
+    return(corr_vector)
 }
 
-stack_data <- function(data, corr_vars, other_vars) {    
+
+get_corr_matrix <- function(corr_vector, corr_matrix, corr_vars, data) {
+    if (!is.null(corr_matrix)) {
+        return(corr_matrix)
+    } else {  # use the corr_vector to generate a correlation matrix
+        # get the entry names of all the variables to corr across
+        if (is.null(corr_vector)) {  # use a default if no user inputs
+            corr_vector <- _default_corr_vector(corr_vars)
+        }
+        var_groups <- sapply(names(corr_vector),
+                             function(x) unique(data[, c(var), with=F]))
+        names(var_groups) <- names(corr_vector)
+        # make the individual matrices
+        mat_list <- list()
+        for var in names(var_groups) {
+            entry_set <- var_groups[[var]]
+            num_entries <- length(entry_set)
+            mat <- corr_vector[var] ** abs(outer(1:num_entries,
+                                                 1:num_entries,
+                                                 "-"))
+            rownames(mat) <- colnames(mat) <- entry_set
+            mat_list <- append(mat_list, list(mat))
+        }
+        names(mat_list) <- names(corr_vector)
+
+        # make outer/kronecker product of all of the individual matrices
+        outer_prod <- mat_list[[1]]
+        for (i in 2:length(corr_vector)) {
+            outer_prod <- kronecker(outer_prod, mat_list[[i]], make.dimnames=T)
+        }
+        return(outer_prod)
+    }
+}
+
+stack_data <- function(data, corr_vars, other_vars) {
     to_stack_name <- paste(corr_vars, collapse="__")
     no_stack_name <- paste(other_vars, collapse="__")
-    
+
     data[, paste0(corr_vars_name) := do.call(paste, c(data[, .SD, .SDcols = corr_vars], sep = "__")) ]
     data[, paste0(other_vars_name) := do.call(paste, c(data[, .SD, .SDcols = other_vars], sep = "__"))]
-    
+
     ## Remove the non-stacked vars
     data[, paste0(corr_vars_name) := NULL]
     data[, paste0(other_vars_name) := NULL]
@@ -83,7 +118,7 @@ stack_data <- function(data, corr_vars, other_vars) {
 
 to_array <- function(data, corr_vars, other_vars) {
 
-  ## Get a single vector with the names of the vars 
+  ## Get a single vector with the names of the vars
   var_melters <- c(paste(other_vars, collapse= "__"), paste(corr_vars, collapse= "__"))
 
   ## Get colnames
@@ -98,7 +133,7 @@ to_array <- function(data, corr_vars, other_vars) {
 }
 
 correlate_stack <- function(data, corr_matrix) {
-        
+
   L <- dim(X)[2]
   D <- dim(X)[3]
   Xsum <- apply(X, c(2, 3), sum)

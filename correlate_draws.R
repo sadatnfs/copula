@@ -8,9 +8,9 @@ require(Matrix)
 source("./helper_functions.R")
 
 
-## Note: the datasets MUST be combined and melted first! The combined part more important 
+## Note: the datasets MUST be combined and melted first! The combined part more important
 
-## So far our function is only dealing with a single dataset, and that just might be easier: 
+## So far our function is only dealing with a single dataset, and that just might be easier:
 # to have the user supply a prepped data with very specific dims
 
 #### Expected dataset for user:
@@ -26,12 +26,12 @@ source("./helper_functions.R")
 correlate_draws <- function(draw_data, draw_names, corr_vector=c(),
                             corr_matrix=matrix(), corr_vars=c(), other_vars=c(), return_wide=F) {
 
-	## Run checks
+	  ## Run checks
     check_input_format(draw_data, corr_vars, corr_vector, corr_matrix)
-    
+
     ## Generating corr matrix
-    correlation_matrix <- get_corr_matrix(corr_vector, corr_matrix)
-    
+    correlation_matrix <- get_corr_matrix(corr_vector, corr_matrix, corr_vars, draw_data)
+
     ## Stack the variables
     stacked_data <- stack_data(draw_data, corr_vars, other_vars)
 
@@ -41,12 +41,12 @@ correlate_draws <- function(draw_data, draw_names, corr_vector=c(),
 
     ## Correlate the data
     correlated_stack <- correlate_stack(data_in_array, correlation_matrix)
-    
+
     ## Unstack the data
-    correlated_data <- unstack_data(correlated_stack, corr_vars, other_vars, 
-    								draw_name = colnames(data_in_array)[3], 
-    								data_col_name = colnames(data_in_array)[4], 
-    								wide_on_draws= return_wide)   
+    correlated_data <- unstack_data(correlated_stack, corr_vars, other_vars,
+    								draw_name = colnames(data_in_array)[3],
+    								data_col_name = colnames(data_in_array)[4],
+    								wide_on_draws= return_wide)
 
     return(correlated_data)
 }
