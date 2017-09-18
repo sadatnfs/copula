@@ -25,7 +25,7 @@
     ### Prep data
 
       ### LDI
-        ldi <- fread("/home/j/Project/IRH/Forecasting/gdp/national_LDIpc_scenarios_prepped_20170721.csv")
+        ldi <- fread("/home/j/Project/IRH/Forecasting/gdp/national_LDIpc_scenarios_prepped_20170916.csv")
         
         ## Scenarios
         ldi_ref <- ldi[scenario==0]
@@ -212,6 +212,6 @@
     TFR_sorted <- rbindlist(list(corr_ref_data[["TFR"]], corr_pes_data[["TFR"]], corr_opt_data[["TFR"]]))
 
     ## Save out
-    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170831.csv")
-    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170831.csv")
-    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170831.csv")
+    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170918.csv")
+    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170918.csv")
+    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170918.csv")
