@@ -1,4 +1,6 @@
 
+
+
     ##########################################
     ## Correlating EDU, TFR and LDI; by scenarios!
     ##########################################
@@ -25,7 +27,7 @@
     ### Prep data
 
       ### LDI
-        ldi <- fread("/home/j/Project/IRH/Forecasting/gdp/national_LDIpc_scenarios_prepped_20170916.csv")
+        ldi <- data.table(read.dta13("/home/j/Project/IRH/Forecasting/gdp/national_LDIpc_scenarios_prepped_20170925.dta"))
         
         ## Scenarios
         ldi_ref <- ldi[scenario==0]
@@ -207,11 +209,11 @@
 
 
     ### Stack each variable
-    LDI_sorted <- rbindlist(list(corr_ref_data[["LDIpc"]], corr_pes_data[["LDIpc"]], corr_opt_data[["LDIpc"]]))
-    EDU_sorted <- rbindlist(list(corr_ref_data[["EDU"]], corr_pes_data[["EDU"]], corr_opt_data[["EDU"]]))
-    TFR_sorted <- rbindlist(list(corr_ref_data[["TFR"]], corr_pes_data[["TFR"]], corr_opt_data[["TFR"]]))
+    LDI_sorted <- rbindlist(list(corr_ref_data[["LDIpc"]], corr_pes_data[["LDIpc"]], corr_opt_data[["LDIpc"]]), use.names=T)
+    EDU_sorted <- rbindlist(list(corr_ref_data[["EDU"]], corr_pes_data[["EDU"]], corr_opt_data[["EDU"]]), use.names=T)
+    TFR_sorted <- rbindlist(list(corr_ref_data[["TFR"]], corr_pes_data[["TFR"]], corr_opt_data[["TFR"]]), use.names=T)
 
     ## Save out
-    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170918.csv")
-    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170918.csv")
-    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170918.csv")
+    fwrite(LDI_sorted, "/ihme/forecasting/data/covariates/ldi_per_capita/national_LDIpc_corrd_with_EDU_20170925.csv")
+    fwrite(EDU_sorted, "/ihme/forecasting/data/covariates/education/national_EDU_corrd_with_LDIpc_20170925.csv")
+    fwrite(TFR_sorted, "/ihme/forecasting/data/covariates/TFR/national_TFR_corrd_with_LDIpc_EDU_20170925.csv")
