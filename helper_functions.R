@@ -59,11 +59,56 @@ check_input_format <- function(data, corr_vars, corr_vector, corr_matrix,
     }
 }
 
-
-get_corr_matrix <- function(corr_vector, corr_matrix) {
-    print("TODO: write this function")
+_default_corr_vector <- function(corr_vars, corr_value=0.8) {
+    corr_vector <- rep(corr_value, length(corr_vars))
+    names(corr_vector) <- corr_vars
+    return(corr_vector)
 }
 
+
+get_corr_matrix <- function(corr_vector, corr_matrix, corr_vars, data) {
+    if (!is.null(corr_matrix)) {
+        return(corr_matrix)
+    } else {  # use the corr_vector to generate a correlation matrix
+        # get the entry names of all the variables to corr across
+        if (is.null(corr_vector)) {  # use a default if no user inputs
+            corr_vector <- _default_corr_vector(corr_vars)
+        }
+        var_groups <- sapply(names(corr_vector),
+                             function(x) unique(data[, c(var), with=F]))
+        names(var_groups) <- names(corr_vector)
+        # make the individual matrices
+        mat_list <- list()
+        for var in names(var_groups) {
+            entry_set <- var_groups[[var]]
+            num_entries <- length(entry_set)
+            mat <- corr_vector[var] ** abs(outer(1:num_entries,
+                                                 1:num_entries,
+                                                 "-"))
+            rownames(mat) <- colnames(mat) <- entry_set
+            mat_list <- append(mat_list, list(mat))
+        }
+        names(mat_list) <- names(corr_vector)
+
+        # make outer/kronecker product of all of the individual matrices
+        outer_prod <- mat_list[[1]]
+        for (i in 2:length(corr_vector)) {
+            outer_prod <- kronecker(outer_prod, mat_list[[i]], make.dimnames=T)
+        }
+        return(outer_prod)
+    }
+}
+
+<<<<<<< HEAD
+stack_data <- function(data, corr_vars, other_vars) {
+    to_stack_name <- paste(corr_vars, collapse="__")
+    no_stack_name <- paste(other_vars, collapse="__")
+
+    data[, paste0(corr_vars_name) := do.call(paste, c(data[, .SD, .SDcols = corr_vars], sep = "__")) ]
+    data[, paste0(other_vars_name) := do.call(paste, c(data[, .SD, .SDcols = other_vars], sep = "__"))]
+
+    ## Remove the non-stacked vars
+=======
 stack_data <- function(data, corr_vars, other_vars) {    
 
 	## This function will stack the variables we want to correlate and not correlate across
@@ -77,6 +122,7 @@ stack_data <- function(data, corr_vars, other_vars) {
     data[, paste0(other_vars_name) := do.call(paste, c(data[, .SD, .SDcols = other_vars], sep = "__"))]
     
     ## Remove the non-stacked variables
+>>>>>>> 6e6c5c80e49b4cd9151365806f7cda64a70e4b24
     data[, paste0(corr_vars_name) := NULL]
     data[, paste0(other_vars_name) := NULL]
 
@@ -88,7 +134,7 @@ stack_data <- function(data, corr_vars, other_vars) {
 
 to_array <- function(data, corr_vars, other_vars) {
 
-	## Get a single vector with the names of the vars 
+	## Get a single vector with the names of the vars
 	var_melters <- c(paste(other_vars, collapse= "__"), paste(corr_vars, collapse= "__"))
 
 	## Get colnames for each of the dimensions
@@ -103,7 +149,6 @@ to_array <- function(data, corr_vars, other_vars) {
 }
 
 correlate_stack <- function(data, corr_matrix) {
-	    
 	## Get dimension 2
 	L <- dim(X)[2]
 
@@ -133,20 +178,19 @@ correlate_stack <- function(data, corr_matrix) {
 	}
 
 	return(data.table(melt(Xcorr)))
-
 }
 
 
 
 unstack_data <- function(data, corr_vars, other_vars, draw_name = "draw_num", data_col_name = "data", wide_on_draws = F) {
-    
-    
+
+
     ## Split the variables according to the length of the corring_over and not_corring_over vectors
-        
-    ## Clean up column names    
-    setDT(data)[, paste0("not_corr", 1:length(other_vars)) := 
+
+    ## Clean up column names
+    setDT(data)[, paste0("not_corr", 1:length(other_vars)) :=
                                        tstrsplit(get(var_melters[1]), "__", type.convert = TRUE, fixed = TRUE)]
-    setDT(data)[, paste0("to_corr", 1:length(corr_vars)) := 
+    setDT(data)[, paste0("to_corr", 1:length(corr_vars)) :=
                                        tstrsplit(get(var_melters[2]), "__", type.convert = TRUE, fixed = TRUE)]
 
 
@@ -154,17 +198,16 @@ unstack_data <- function(data, corr_vars, other_vars, draw_name = "draw_num", da
     data_processed <- data[, .SD, .SDcols = c(paste0("not_corr", 1:length(other_vars)),
                                   paste0("to_corr", 1:length(corr_vars)),
                                   paste0(draw_name), paste0(data) )]
-    
+
     ## Rename columns back
     for(i in 1:length(c(other_vars, corr_vars))) {
-        colnames(data_processed)[i] <- c(other_vars, corr_vars)[i] 
+        colnames(data_processed)[i] <- c(other_vars, corr_vars)[i]
     }
 
     ## Cast the draws out wide?
     if(wide_on_draws) {
         data_processed <- dcast(data_processed, other_vars + corr_vars ~ draw_name, value.var = paste0(data) )
     }
-    
 
     return(data_processed)
 }
